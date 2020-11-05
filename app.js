@@ -2,6 +2,7 @@
 const express = require("express");
 const b_parser = require("body-parser");
 const ejs = require("ejs");
+const _ = require('lodash');
 
 const app = express();
 
@@ -15,17 +16,17 @@ app.listen(3000, function()
 });
 //initial
 
+const h_Content = "A home page is generally the main web page a visitor navigating to a website from a search engine will see, and it may also serve as a landing page to attract visitors.[1][2] The home page is used to facilitate navigation to other pages on the site by providing links to prioritized and recent articles and pages, and possibly a search box.[3] For example, a news website may present headlines and first paragraphs of top stories, with links to full articles.[4] Meanwhile, other websites use the home page to attract users to create an account. Once they are logged in, the home page may be redirected to their profile page. This may in turn be referred to as the personal home page.A website may have multiple home pages. Wikipedia, for example, has a home page at wikipedia.org, as well as language-specific home pages, such as en.wikipedia.org and de.wikipedia.org. The Uniform Resource Locator (URL) of a home page is most often the base-level domain name, such as https://example.com";
+const a_Content = "An About page is a special web page on a site where your readers/visitors learn more about you and what you do. This is not a contact us page. Writing this page isn’t the easiest thing to master, but it’s possible once you understand the essential elements that must be included.";
+const c_Content = "An awesome Contact Us page finds just the right balance between making it easy to reach the company and sharing resources users can use to answer their questions right away.";
+
+let posts= [];
 
 
-const h_Content = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
-const a_Content = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
-const c_Content = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
-
-
-
+//All Get Method
 app.get("/", (req,res) => 
 {
-  res.render("home", {para: h_Content});
+  res.render("home", {para: posts});
 })
 
 app.get("/about", (req,res) => 
@@ -43,15 +44,32 @@ app.get("/compose", (req,res) =>
   res.render("compose");
 })
 
-app.post("/compose", (req,res) => 
+app.get("/posts/:postName", (req, res) => 
 {
-  
-  let post = 
+  //load_ash npm package
+  const x = _.lowerCase(req.params.postName);
+
+  posts.forEach((blog) =>
+  {
+    const y = _.lowerCase(blog.title);
+    if (x === y) 
+    {
+      //render=display page 
+      res.render("post", { title: blog.title, content: blog.content });
+    }
+  });
+});
+
+
+//Post Method
+app.post("/compose", (req, res) =>
+ {
+  let blog = 
   {
     title: req.body.blogTitle,
-    body: req.body.blogText,
+    content: req.body.blogText,
   };
-
-  console.log(post.title)
-})
+  posts.push(blog);
+  res.redirect("/");
+});
 
