@@ -1,8 +1,9 @@
 //initial
 const express = require("express");
 const b_parser = require("body-parser");
+var _ = require("lodash");
 const ejs = require("ejs");
-const _ = require('lodash');
+const mango = require("mongoose");
 
 const app = express();
 
@@ -10,7 +11,13 @@ app.set('view engine', 'ejs');
 app.use(b_parser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-app.listen(3000, function()
+
+let port = process.env.PORT;
+if(port == null || port == "")
+{
+  port = 3000;
+}
+app.listen(port, (req, res) => 
 {
   console.log("Server Started");
 });
@@ -20,14 +27,28 @@ const h_Content = "A home page is generally the main web page a visitor navigati
 const a_Content = "An About page is a special web page on a site where your readers/visitors learn more about you and what you do. This is not a contact us page. Writing this page isn’t the easiest thing to master, but it’s possible once you understand the essential elements that must be included.";
 const c_Content = "An awesome Contact Us page finds just the right balance between making it easy to reach the company and sharing resources users can use to answer their questions right away.";
 
-let posts= [];
 
+/****************Create DataBase(S)*******************/
+mango.connect("mongodb+srv://admin-waleee:godofwar3@clusterwaleee.steez.mongodb.net/databaseX?retryWrites=true&w=majority/Post",{ useNewUrlParser: true }, { useUnifiedTopology: true });
+
+//Create  Schema
+const BlogSchema =
+{
+  title: String,
+  content: String
+}
+
+//Create Object
+const Post = mango.model("Post", BlogSchema); 
 
 //All Get Method
 app.get("/", (req,res) => 
 {
-  res.render("home", {para: posts});
-})
+  Post.find({}, (err, all_post) => 
+  {
+     res.render("home", { posts: all_post });  
+  });
+});
 
 app.get("/about", (req,res) => 
 {
@@ -44,32 +65,28 @@ app.get("/compose", (req,res) =>
   res.render("compose");
 })
 
-app.get("/posts/:postName", (req, res) => 
+app.get("/posts/:postName", function(req, res)
 {
-  //load_ash npm package
-  const x = _.lowerCase(req.params.postName);
+  const x = req.params.postName;
 
-  posts.forEach((blog) =>
+  Post.findOne({ _id: x}, function (err, post) 
   {
-    const y = _.lowerCase(blog.title);
-    if (x === y) 
-    {
-      //render=display page 
-      res.render("post", { title: blog.title, content: blog.content });
-    }
+    res.render("post", { title: post.title, content: post.content});
   });
 });
 
-
 //Post Method
-app.post("/compose", (req, res) =>
- {
-  let blog = 
-  {
+app.post("/compose", (req, res) => 
+{
+  const post = new Post
+  ({
     title: req.body.blogTitle,
     content: req.body.blogText,
-  };
-  posts.push(blog);
-  res.redirect("/");
+  });
+
+  post.save((err) => 
+  {
+    res.redirect("/");
+  });
 });
 

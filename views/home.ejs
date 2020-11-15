@@ -1,10 +1,10 @@
 <%- include("partials/header.ejs") %>
 
-<h2>All Personal Blogs</h2>
+<h2>Personal Blogs</h2>
 
-<% para.forEach((posts) => { %>
-  <h3><%=posts.title%></h3>
-  <p><%=posts.content.substring(0, 70)+" ...."%><a href="/posts/<%=posts.title%>">Read More</a></p>
+<% posts.forEach((post) => { %>
+  <h3><%=post.title%></h3>
+  <p><%=post.content.substring(0, 70)+" ...."%><a href="/posts/<%=post._id%>">Read More</a></p>
 <% }) %>
 
 <%- include("partials/footer.ejs") %>
